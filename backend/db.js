@@ -1,0 +1,77 @@
+const { Pool } = require('pg');
+const bcrypt = require('bcryptjs');
+require('dotenv').config();
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+});
+
+const initializeDatabase = async () => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Create extensions
+    await client.query('CREATE EXTENSION IF NOT EXISTS "pgcrypto"');
+
+    // Create tables
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        role TEXT NOT NULL,
+        password_hash TEXT NOT NULL
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS groups (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name TEXT NOT NULL UNIQUE,
+        project_title TEXT,
+        members TEXT[],
+        panel1_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        panel2_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        external_panel_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        status TEXT NOT NULL
+      );
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS panel_grades (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+        panelist_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        presenter_scores JSONB,
+        thesis_scores JSONB,
+        submitted BOOLEAN NOT NULL DEFAULT false,
+        UNIQUE (group_id, panelist_id)
+      );
+    `);
+
+    // Seed initial admin user
+    const res = await client.query('SELECT * FROM users WHERE email = $1', ['admin@example.com']);
+    if (res.rowCount === 0) {
+      const salt = await bcrypt.genSalt(10);
+      const password_hash = await bcrypt.hash('123', salt);
+      await client.query(
+        'INSERT INTO users (name, email, role, password_hash) VALUES ($1, $2, $3, $4)',
+        ['User Admin', 'admin@example.com', 'Admin', password_hash]
+      );
+      console.log('Admin user created.');
+    }
+
+    await client.query('COMMIT');
+    console.log('Database tables verified/created successfully.');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error initializing database', err);
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { pool, initializeDatabase };
