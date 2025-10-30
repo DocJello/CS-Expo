@@ -20,16 +20,21 @@ const GradeSheetCard: React.FC<GradeSheetCardProps> = ({ group, users }) => {
         if (group.status !== GradingStatus.COMPLETED || !group.grades.length) return 0;
         
         const totalScore = group.grades.reduce((acc, grade) => {
-            // Fix: Cast score values to number to perform arithmetic operations.
             const presenterScore = Object.values(grade.presenterScores).reduce((s, v) => s + (v as number), 0);
-            // Fix: Cast score values to number to perform arithmetic operations.
             const thesisScore = Object.values(grade.thesisScores).reduce((s, v) => s + (v as number), 0);
-            return acc + (presenterScore / maxPresenterScore) * 100 + (thesisScore / maxThesisScore) * 100;
+            
+            // Calculate percentage for each rubric for the current panelist's grade
+            const presenterPercentage = (presenterScore / maxPresenterScore) * 100;
+            const thesisPercentage = (thesisScore / maxThesisScore) * 100;
+            
+            // The final score for one panelist is the average of the two rubric percentages
+            const panelistFinalScore = (presenterPercentage + thesisPercentage) / 2;
+            
+            return acc + panelistFinalScore;
         }, 0);
         
-        // This is a simplified calculation logic.
-        // It averages the percentage scores of presenter and thesis rubrics across all panelists.
-        return totalScore / (group.grades.length * 2);
+        // The group's final score is the average of all panelist's final scores
+        return totalScore / group.grades.length;
     };
     
     const finalScore = getFinalScore();
