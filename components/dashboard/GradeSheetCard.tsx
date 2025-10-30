@@ -20,9 +20,9 @@ const GradeSheetCard: React.FC<GradeSheetCardProps> = ({ group, users }) => {
         if (group.status !== GradingStatus.COMPLETED || !group.grades.length) return 0;
         
         const totalScore = group.grades.reduce((acc, grade) => {
-            // Fix: Cast value to number as Object.values() returns `unknown[]` which cannot be used in arithmetic operations.
+            // Fix: Cast score values to number to perform arithmetic operations.
             const presenterScore = Object.values(grade.presenterScores).reduce((s, v) => s + (v as number), 0);
-            // Fix: Cast value to number as Object.values() returns `unknown[]` which cannot be used in arithmetic operations.
+            // Fix: Cast score values to number to perform arithmetic operations.
             const thesisScore = Object.values(grade.thesisScores).reduce((s, v) => s + (v as number), 0);
             return acc + (presenterScore / maxPresenterScore) * 100 + (thesisScore / maxThesisScore) * 100;
         }, 0);
