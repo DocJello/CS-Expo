@@ -2,20 +2,19 @@ const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
+// The connection to a production database like Render's requires SSL.
+// This configuration is more explicit and reliable than checking NODE_ENV.
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 const initializeDatabase = async () => {
   const client = await pool.connect();
   try {
-    await client.query('BEGIN');
-
-    // Create extensions
-    await client.query('CREATE EXTENSION IF NOT EXISTS "pgcrypto"');
-
-    // Create tables
+    // Create tables if they don't exist
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -51,7 +50,7 @@ const initializeDatabase = async () => {
       );
     `);
 
-    // Seed initial admin user
+    // Seed initial admin user if it doesn't exist
     const res = await client.query('SELECT * FROM users WHERE email = $1', ['admin@example.com']);
     if (res.rowCount === 0) {
       const salt = await bcrypt.genSalt(10);
@@ -63,10 +62,8 @@ const initializeDatabase = async () => {
       console.log('Admin user created.');
     }
 
-    await client.query('COMMIT');
     console.log('Database tables verified/created successfully.');
   } catch (err) {
-    await client.query('ROLLBACK');
     console.error('Error initializing database', err);
     throw err;
   } finally {
