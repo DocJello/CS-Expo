@@ -35,9 +35,7 @@ const AwardsPage: React.FC = () => {
         groups.forEach(group => {
             if (!group.grades.length) return;
 
-            // Fix: Cast score values to number to perform arithmetic operations.
             const avgPresenter = group.grades.reduce((sum, grade) => sum + Object.values(grade.presenterScores).reduce((s,v) => s + (v as number), 0), 0) / group.grades.length;
-            // Fix: Cast score values to number to perform arithmetic operations.
             const avgThesis = group.grades.reduce((sum, grade) => sum + Object.values(grade.thesisScores).reduce((s,v) => s + (v as number), 0), 0) / group.grades.length;
             
             presenterScores.push({ groupName: group.name, projectTitle: group.projectTitle, score: (avgPresenter / maxPresenterScore) * 100 });
