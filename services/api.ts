@@ -3,7 +3,7 @@ import { User, StudentGroup, RubricScore } from '../types';
 // IMPORTANT: Before deployment, replace this with your backend's public URL.
 // For local development, this should point to your local backend server.
 // Per your instructions, this will be replaced with your Render URL during deployment.
-export const API_URL = 'http://localhost:10000'; 
+export const API_URL = 'https://cs-expo-web-api.onrender.com'; 
 
 const handleResponse = async (response: Response) => {
     if (!response.ok) {
