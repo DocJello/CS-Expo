@@ -1,9 +1,16 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { getGroups, getUsers, createGroup, updateGroup, deleteGroup, bulkCreateGroups } from '../services/api';
 import { StudentGroup, User, UserRole, GradingStatus } from '../types';
 import { useNotifications } from '../contexts/NotificationContext';
 // FIX: Added import for XLSX library to handle spreadsheet data.
 import * as XLSX from 'xlsx';
+
+const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
+const EditIcon = (props: React.SVGProps<SVGSVGElement>) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>;
+const TrashIcon = (props: React.SVGProps<SVGSVGElement>) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>;
+const SaveIcon = (props: React.SVGProps<SVGSVGElement>) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>;
+const XIcon = (props: React.SVGProps<SVGSVGElement>) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
+const UploadIcon = (props: React.SVGProps<SVGSVGElement>) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>;
 
 const GroupManagementPage: React.FC = () => {
     const [groups, setGroups] = useState<StudentGroup[]>([]);
@@ -14,6 +21,7 @@ const GroupManagementPage: React.FC = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [currentGroup, setCurrentGroup] = useState<Partial<StudentGroup> | null>(null);
     const { addNotification } = useNotifications();
+    const importGroupsRef = useRef<HTMLInputElement>(null);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -133,7 +141,10 @@ const GroupManagementPage: React.FC = () => {
         <div className="space-y-8">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Group Management</h1>
-                <button onClick={() => handleOpenModal()} className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Add Group</button>
+                <button onClick={() => handleOpenModal()} className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                    <PlusIcon />
+                    <span>Add Group</span>
+                </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -167,8 +178,14 @@ const GroupManagementPage: React.FC = () => {
                                     <td className="px-6 py-4 whitespace-nowrap"><div className="font-medium">{group.name}</div></td>
                                     <td className="px-6 py-4 whitespace-nowrap">{group.projectTitle}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button onClick={() => handleOpenModal(group)} className="text-indigo-600 hover:text-indigo-900">Edit</button>
-                                        <button onClick={() => openDeleteModal(group)} className="text-red-600 hover:text-red-900 ml-4">Delete</button>
+                                        <button onClick={() => handleOpenModal(group)} className="inline-flex items-center space-x-1 text-indigo-600 hover:text-indigo-900">
+                                            <EditIcon />
+                                            <span>Edit</span>
+                                        </button>
+                                        <button onClick={() => openDeleteModal(group)} className="inline-flex items-center space-x-1 text-red-600 hover:text-red-900 ml-4">
+                                            <TrashIcon />
+                                            <span>Delete</span>
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -180,7 +197,11 @@ const GroupManagementPage: React.FC = () => {
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
                 <h2 className="text-xl font-bold mb-4">Bulk Add Groups</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Upload an XLSX or CSV file with a column named "Group Name" to create multiple groups at once. You can optionally include a "Project Title" or "Title" column.</p>
-                <input type="file" accept=".xlsx, .csv" onChange={handleBulkImport} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
+                <button onClick={() => importGroupsRef.current?.click()} className="inline-flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                    <UploadIcon />
+                    <span>Import From File</span>
+                </button>
+                <input type="file" ref={importGroupsRef} accept=".xlsx, .csv" onChange={handleBulkImport} className="hidden" />
             </div>
 
             {isModalOpen && currentGroup && (
@@ -217,8 +238,14 @@ const GroupManagementPage: React.FC = () => {
                             </select>
                         </div>
                         <div className="flex justify-end space-x-2">
-                            <button onClick={handleCloseModal} className="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-md">Cancel</button>
-                            <button onClick={handleSave} className="px-4 py-2 bg-indigo-600 text-white rounded-md">Save</button>
+                            <button onClick={handleCloseModal} className="flex items-center space-x-2 px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-md">
+                                <XIcon />
+                                <span>Cancel</span>
+                            </button>
+                            <button onClick={handleSave} className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-md">
+                                <SaveIcon />
+                                <span>Save</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -229,8 +256,14 @@ const GroupManagementPage: React.FC = () => {
                         <h2 className="text-xl font-bold">Confirm Deletion</h2>
                         <p className="mt-2">Are you sure you want to delete the group "{currentGroup.name}"? This action cannot be undone.</p>
                         <div className="flex justify-end space-x-2 mt-4">
-                            <button onClick={() => setIsDeleteModalOpen(false)} className="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-md">Cancel</button>
-                            <button onClick={handleDelete} className="px-4 py-2 bg-red-600 text-white rounded-md">Delete</button>
+                            <button onClick={() => setIsDeleteModalOpen(false)} className="flex items-center space-x-2 px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-md">
+                                <XIcon />
+                                <span>Cancel</span>
+                            </button>
+                            <button onClick={handleDelete} className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-md">
+                                <TrashIcon className="w-4 h-4" />
+                                <span>Delete</span>
+                            </button>
                         </div>
                     </div>
                 </div>
