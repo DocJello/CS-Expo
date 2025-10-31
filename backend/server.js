@@ -8,7 +8,17 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 
 // Middleware
-app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
+// FIX: Implemented a more robust and explicit CORS configuration to resolve persistent CORS errors.
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || '*',
+  methods: 'GET,POST,PUT,DELETE,OPTIONS',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true,
+};
+app.use(cors(corsOptions));
+// This explicit options handler can resolve edge cases on some platforms.
+app.options('*', cors(corsOptions));
+
 app.use(express.json({ limit: '50mb' }));
 
 
