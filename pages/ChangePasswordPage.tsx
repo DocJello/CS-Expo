@@ -3,6 +3,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { changePassword as apiChangePassword } from '../services/api';
 import { useNotifications } from '../contexts/NotificationContext';
 
+const SaveIcon = (props: React.SVGProps<SVGSVGElement>) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>;
+
 const ChangePasswordPage: React.FC = () => {
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -86,8 +88,9 @@ const ChangePasswordPage: React.FC = () => {
                     {message && <p className="text-sm text-green-500">{message}</p>}
 
                     <div>
-                        <button type="submit" className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            Update Password
+                        <button type="submit" className="w-full flex justify-center items-center space-x-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <SaveIcon />
+                            <span>Update Password</span>
                         </button>
                     </div>
                 </form>
