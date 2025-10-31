@@ -50,17 +50,21 @@ const initializeDatabase = async () => {
       );
     `);
 
-    // Seed initial admin user if it doesn't exist
-    const res = await client.query('SELECT * FROM users WHERE email = $1', ['admin@example.com']);
-    if (res.rowCount === 0) {
-      const salt = await bcrypt.genSalt(10);
-      const password_hash = await bcrypt.hash('123', salt);
-      await client.query(
-        'INSERT INTO users (name, email, role, password_hash) VALUES ($1, $2, $3, $4)',
-        ['User Admin', 'admin@example.com', 'Admin', password_hash]
-      );
-      console.log('Admin user created.');
-    }
+    // Seed initial admin user using an UPSERT to guarantee it exists.
+    const salt = await bcrypt.genSalt(10);
+    const password_hash = await bcrypt.hash('123', salt);
+    await client.query(
+      `INSERT INTO users (name, email, role, password_hash)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (email)
+       DO UPDATE SET
+         name = EXCLUDED.name,
+         role = EXCLUDED.role,
+         password_hash = EXCLUDED.password_hash;`,
+      ['User Admin', 'admin@example.com', 'Admin', password_hash]
+    );
+    console.log('Admin user ensured to exist.');
+
 
     console.log('Database tables verified/created successfully.');
   } catch (err) {
