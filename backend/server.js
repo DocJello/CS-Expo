@@ -322,7 +322,9 @@ app.post('/api/groups/bulk-create', async (req, res) => {
 
 app.delete('/api/groups/all', async (req, res) => {
     try {
-        await pool.query('DELETE FROM groups');
+        // FIX: Use TRUNCATE to efficiently and reliably delete all groups and their associated grades.
+        // This is more direct and faster for clearing all data than relying on individual DELETEs with cascades.
+        await pool.query('TRUNCATE groups, panel_grades RESTART IDENTITY CASCADE');
         res.json({ success: true });
     } catch (err) {
         console.error(err);
