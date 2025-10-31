@@ -1,7 +1,8 @@
 import { User, StudentGroup, RubricScore } from '../types';
 
 // The API URL is now pointed to the deployed backend service on Render.
-export const API_URL = 'https://cs-expo-web-api.onrender.com';
+// IMPORTANT: Replace this placeholder with the new URL for your Render Web Service from Part 1, Step 4.
+export const API_URL = 'https://cs-expo-api-fresh.onrender.com';
 
 const handleResponse = async (response: Response) => {
     if (!response.ok) {
