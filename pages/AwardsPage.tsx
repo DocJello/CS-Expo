@@ -35,10 +35,10 @@ const AwardsPage: React.FC = () => {
         groups.forEach(group => {
             if (!group.grades || group.grades.length === 0) return;
 
-            // Fix: Cast value to number as Object.values() returns `unknown[]` which cannot be used in arithmetic operations.
-            const avgPresenter = group.grades.reduce((sum, grade) => sum + Object.values(grade.presenterScores).reduce((s,v) => s + (v as number), 0), 0) / group.grades.length;
-            // Fix: Cast value to number as Object.values() returns `unknown[]` which cannot be used in arithmetic operations.
-            const avgThesis = group.grades.reduce((sum, grade) => sum + Object.values(grade.thesisScores).reduce((s,v) => s + (v as number), 0), 0) / group.grades.length;
+            // FIX: Cast value to number as Object.values() returns `unknown[]` which cannot be used in arithmetic operations.
+            const avgPresenter = group.grades.reduce((sum, grade) => sum + Object.values(grade.presenterScores).reduce((s,v) => s + Number(v), 0), 0) / group.grades.length;
+            // FIX: Cast value to number as Object.values() returns `unknown[]` which cannot be used in arithmetic operations.
+            const avgThesis = group.grades.reduce((sum, grade) => sum + Object.values(grade.thesisScores).reduce((s,v) => s + Number(v), 0), 0) / group.grades.length;
             
             presenterScores.push({ groupName: group.name, projectTitle: group.projectTitle, score: (avgPresenter / maxPresenterScore) * 100 });
             thesisScores.push({ groupName: group.name, projectTitle: group.projectTitle, score: (avgThesis / maxThesisScore) * 100 });
