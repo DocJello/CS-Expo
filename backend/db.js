@@ -68,7 +68,22 @@ const initializeDatabase = async () => {
       [password_hash]
     );
     
-    console.log('Default admin user configuration complete.');
+    // Verification step
+    const adminCheck = await client.query("SELECT name, email, role FROM users WHERE email = 'admin@example.com'");
+    if (adminCheck.rowCount > 0) {
+        console.log('--- ADMIN ACCOUNT VERIFICATION ---');
+        console.log('Admin user found in database:');
+        console.log(JSON.stringify(adminCheck.rows[0], null, 2));
+        console.log('You can log in with:');
+        console.log('Email: admin@example.com');
+        console.log('Password: 123');
+        console.log('------------------------------------');
+    } else {
+        console.error('--- ADMIN ACCOUNT VERIFICATION FAILED ---');
+        console.error('Could not find the admin user in the database after setup.');
+        console.error('-------------------------------------------');
+    }
+
     console.log('Database tables verified/created successfully.');
   } catch (err) {
     console.error('Error initializing database', err);
