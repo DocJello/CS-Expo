@@ -5,6 +5,9 @@ import { BEST_PRESENTER_RUBRIC, BEST_THESIS_RUBRIC } from '../constants';
 import { useNotifications } from '../contexts/NotificationContext';
 import * as XLSX from 'xlsx';
 
+const UploadIcon = (props: React.SVGProps<SVGSVGElement>) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>;
+const DownloadIcon = (props: React.SVGProps<SVGSVGElement>) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>;
+
 const MasterlistPage: React.FC = () => {
     const [groups, setGroups] = useState<StudentGroup[]>([]);
     const [users, setUsers] = useState<User[]>([]);
@@ -240,12 +243,14 @@ const MasterlistPage: React.FC = () => {
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Masterlist and Panel Assignment</h1>
                  <div className="flex space-x-2">
-                    <button onClick={() => importFileRef.current?.click()} className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-                        Import Masterlist
+                    <button onClick={() => importFileRef.current?.click()} className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                        <UploadIcon />
+                        <span>Import Masterlist</span>
                     </button>
                     <input type="file" ref={importFileRef} onChange={handleImportMasterlist} accept=".xlsx" className="hidden" />
-                    <button onClick={handleExportToWord} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                        Export to Word
+                    <button onClick={handleExportToWord} className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        <DownloadIcon />
+                        <span>Export to Word</span>
                     </button>
                 </div>
             </div>
