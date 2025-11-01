@@ -1,5 +1,5 @@
 {
-  "name": "CS Expo Online Grading Sheet",
+  "name": "CS Expo Online Grading System",
   "description": "A comprehensive web application designed as an Online Grading Sheet for a university course, likely for a Thesis or Capstone Project presentation. The application provides a full suite of tools for Administrators, Course Advisers, and Panelists to manage the entire grading process, from student group creation to final grade calculation and reporting.",
   "requestFramePermissions": []
 }
